@@ -1,4 +1,4 @@
-/*  EMOJI
+/* EMOJI
 
 #include <Wire.h>
 #include <Adafruit_GFX.h>
@@ -91,48 +91,41 @@ void loop() {}
 
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
-
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
-
-// Simple Nike Swoosh (approximate)
-const unsigned char nike_logo[] PROGMEM = {
-  0b00000000, 0b00000000, 0b00000000, 0b00000000,
-  0b00000000, 0b00000000, 0b00000000, 0b00000000,
-  0b00000000, 0b00000000, 0b00000000, 0b00000000,
-  0b00000000, 0b00000000, 0b00000011, 0b00000000,
-  0b00000000, 0b00000000, 0b00000111, 0b10000000,
-  0b00000000, 0b00000000, 0b00001111, 0b11000000,
-  0b00000000, 0b00000000, 0b00011111, 0b11100000,
-  0b00000000, 0b00000000, 0b00111111, 0b11110000,
-  0b00000000, 0b00000000, 0b01111111, 0b11111000,
-  0b00000000, 0b00000000, 0b00011111, 0b11100000,
-  0b00000000, 0b00000000, 0b00001111, 0b11000000,
-  0b00000000, 0b00000000, 0b00000111, 0b10000000,
-  0b00000000, 0b00000000, 0b00000011, 0b00000000,
-  0b00000000, 0b00000000, 0b00000000, 0b00000000
-};
+#define OLED_RESET    -1
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 void setup() {
-  Serial.begin(115200);
-
-  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
-    Serial.println(F("SSD1306 allocation failed"));
-    for (;;);
-  }
-
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
   display.clearDisplay();
 
-  // Draw Nike logo
-  display.drawBitmap(40, 10, nike_logo, 48, 14, SSD1306_WHITE);
+  int cx = SCREEN_WIDTH / 2;
+  int cy = SCREEN_HEIGHT / 2;
+  int r = 28;
 
-  // Write NIKE text under it
-  display.setTextSize(2);
-  display.setTextColor(SSD1306_WHITE);
-  display.setCursor(40, 35);
-  display.print("NIKE");
+  // Outer circle
+  display.drawCircle(cx, cy, r, WHITE);
+
+  // Star center to top
+  display.drawLine(cx, cy, cx, cy - r, WHITE);
+
+  // Star center to bottom-left
+  float angle1 = 210 * 3.14159 / 180;  // 210 degrees
+  int x1 = cx + (int)(r * cos(angle1));
+  int y1 = cy + (int)(r * sin(angle1));
+  display.drawLine(cx, cy, x1, y1, WHITE);
+
+  // Star center to bottom-right
+  float angle2 = 330 * 3.14159 / 180;  // 330 degrees
+  int x2 = cx + (int)(r * cos(angle2));
+  int y2 = cy + (int)(r * sin(angle2));
+  display.drawLine(cx, cy, x2, y2, WHITE);
+
+  // Optional inner lines for thickness (looks better on small screen)
+  display.drawLine(cx+1, cy, cx+1, cy - r, WHITE);
+  display.drawLine(cx-1, cy, cx-1, cy - r, WHITE);
 
   display.display();
 }
 
-void loop() {
-}
+void loop() {}
+
