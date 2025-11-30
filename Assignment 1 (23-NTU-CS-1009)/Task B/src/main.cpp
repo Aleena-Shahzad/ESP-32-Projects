@@ -4,106 +4,101 @@
 
 #define OLED_WIDTH 128
 #define OLED_HEIGHT 64
-Adafruit_SSD1306 display(OLED_WIDTH, OLED_HEIGHT, &Wire, -1);
+Adafruit_SSD1306 oledDisplay(OLED_WIDTH, OLED_HEIGHT, &Wire, -1);
 
-// Pin configuration
-#define LED1 18
-#define LED2 19
-#define LED3 23
-#define BUZZER 27
-#define BTN_MODE 25  // Single button
+// ==== Pin Definitions ====
+#define LED_RED 18
+#define LED_GREEN 19
+#define LED_BLUE 23
+#define BUZZER_PIN 27
+#define BUTTON_INPUT 25  // Single button
 
-#define LONG_PRESS_TIME 1500  // 1.5 seconds
+#define LONG_PRESS_THRESHOLD 1500  // 1.5 seconds
 
-// Variables
-bool ledState = false;
-bool isPressed = false;
-unsigned long pressStart = 0;
+// ==== Global Variables ====
+bool ledsOn = false;
+bool buttonHeld = false;
+unsigned long pressStartTime = 0;
 
 void setup() {
   Serial.begin(115200);
 
-  // Pin modes
-  pinMode(LED1, OUTPUT);
-  pinMode(LED2, OUTPUT);
-  pinMode(LED3, OUTPUT);
-  pinMode(BUZZER, OUTPUT);
-  pinMode(BTN_MODE, INPUT_PULLUP);  // Button to GND
+  pinMode(LED_RED, OUTPUT);
+  pinMode(LED_GREEN, OUTPUT);
+  pinMode(LED_BLUE, OUTPUT);
+  pinMode(BUZZER_PIN, OUTPUT);
+  pinMode(BUTTON_INPUT, INPUT_PULLUP);  // Button to GND
 
-  // OLED init
-  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
-    Serial.println(F("SSD1306 allocation failed"));
+  // OLED Initialization
+  if (!oledDisplay.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
+    Serial.println(F("OLED initialization failed!"));
     for (;;);
   }
 
-  display.clearDisplay();
-  display.setTextSize(1);
-  display.setTextColor(SSD1306_WHITE);
-  display.setCursor(0, 0);
-  display.println("System Ready");
-  display.display();
+  oledDisplay.clearDisplay();
+  oledDisplay.setTextSize(1);
+  oledDisplay.setTextColor(SSD1306_WHITE);
+  oledDisplay.setCursor(0, 0);
+  oledDisplay.println("System Ready");
+  oledDisplay.display();
 
-  // Turn everything off initially
-  digitalWrite(LED1, LOW);
-  digitalWrite(LED2, LOW);
-  digitalWrite(LED3, LOW);
-  digitalWrite(BUZZER, LOW);
+  // Start all devices off
+  digitalWrite(LED_RED, LOW);
+  digitalWrite(LED_GREEN, LOW);
+  digitalWrite(LED_BLUE, LOW);
+  digitalWrite(BUZZER_PIN, LOW);
 }
 
 void loop() {
-  bool buttonPressed = (digitalRead(BTN_MODE) == LOW);
+  bool isButtonPressed = (digitalRead(BUTTON_INPUT) == LOW);
 
-  if (buttonPressed && !isPressed) {
-    isPressed = true;
-    pressStart = millis();
+  // When button first pressed
+  if (isButtonPressed && !buttonHeld) {
+    buttonHeld = true;
+    pressStartTime = millis();
   }
 
-  if (!buttonPressed && isPressed) {
-    unsigned long pressDuration = millis() - pressStart;
-    isPressed = false;
+  // When button released
+  if (!isButtonPressed && buttonHeld) {
+    unsigned long pressDuration = millis() - pressStartTime;
+    buttonHeld = false;
 
-    if (pressDuration >= LONG_PRESS_TIME) 
-    {
-      longPressAction();
-    } 
-    else 
-    {
-      shortPressAction();
+    if (pressDuration >= LONG_PRESS_THRESHOLD) {
+      handleLongPress();
+    } else {
+      handleShortPress();
     }
   }
 }
 
-// -----------------------
-// Short press → Toggle LED
-// -----------------------
-void shortPressAction() {
-  ledState = !ledState;
-  digitalWrite(LED1, ledState);
-  digitalWrite(LED2, ledState);
-  digitalWrite(LED3, ledState);
+// ==== Short Press → Toggle LEDs ====
+void handleShortPress() {
+  ledsOn = !ledsOn;
 
-  display.clearDisplay();
-  display.setCursor(0, 0);
-  display.println("Short Press Detected");
-  display.println(ledState ? "LEDs: ON" : "LEDs: OFF");
-  display.display();
+  digitalWrite(LED_RED, ledsOn);
+  digitalWrite(LED_GREEN, ledsOn);
+  digitalWrite(LED_BLUE, ledsOn);
+
+  oledDisplay.clearDisplay();
+  oledDisplay.setCursor(0, 0);
+  oledDisplay.println("Short Press Detected");
+  oledDisplay.println(ledsOn ? "LEDs: ON" : "LEDs: OFF");
+  oledDisplay.display();
 
   Serial.println("Short Press Detected");
 }
 
-// -----------------------
-// Long press → Play buzzer
-// -----------------------
-void longPressAction() {
-  display.clearDisplay();
-  display.setCursor(0, 0);
-  display.println("Long Press Detected");
-  display.println("Playing buzzer tone...");
-  display.display();
+// ==== Long Press → Play Buzzer ====
+void handleLongPress() {
+  oledDisplay.clearDisplay();
+  oledDisplay.setCursor(0, 0);
+  oledDisplay.println("Long Press Detected");
+  oledDisplay.println("Playing buzzer tone...");
+  oledDisplay.display();
 
   Serial.println("Long Press Detected - Playing tone");
 
-  tone(BUZZER, 1000);   // 1 kHz tone
-  delay(500);           // Play for 0.5 s
-  noTone(BUZZER);
+  tone(BUZZER_PIN, 1000);  // 1 kHz tone
+  delay(500);              // Play for 0.5 s
+  noTone(BUZZER_PIN);
 }
