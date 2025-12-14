@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-esp32-devkit-v1", "id": "esp1", "top": 184.7, "left": 39.8, "attrs": {} },
+    { "type": "wokwi-dht11", "id": "dht1", "top": 60, "left": 10, "attrs": {} },
+    { "type": "board-ssd1306", "id": "oled1", "top": 269.54, "left": 333.03, "attrs": {} },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn1",
+      "top": 263,
+      "left": 179.2,
+      "attrs": { "color": "green", "label": "BTN" }
+    },
+    { "type": "wokwi-dht22", "id": "dht2", "top": 84.3, "left": 260.2, "attrs": {} }
+  ],
+  "connections": [
+    [ "esp1:3V3", "oled1:VCC", "red", [ "h172.5", "v-86.4", "h67.05" ] ],
+    [ "esp1:D22", "oled1:SCL", "blue", [] ],
+    [ "esp1:D21", "oled1:SDA", "blue", [] ],
+    [ "btn1:1.l", "esp1:D5", "yellow", [] ],
+    [ "btn1:2.l", "esp1:GND.1", "black", [ "v38.6", "h-38.1" ] ],
+    [ "oled1:GND", "esp1:GND.1", "black", [ "v-9.6", "h-67.2", "v67.3" ] ],
+    [ "dht2:VCC", "esp1:3V3", "red", [ "v153.6", "h-134.1" ] ],
+    [ "dht2:GND", "esp1:GND.1", "black", [ "v0" ] ],
+    [ "dht2:SDA", "esp1:D23", "green", [ "v0" ] ]
+  ],
+  "dependencies": {}
+}
