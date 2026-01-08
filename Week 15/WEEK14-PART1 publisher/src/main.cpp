@@ -1,6 +1,6 @@
 /****************************************************
  * AMNA          23-NTU-CS-1013
- * WEEK13-PART1
+ * WEEK14-PART1-publisher
  * BSCS-5A
  * ESP32 + DHT22 + MQTT (PUBLISHER ONLY)
  * Topic:
@@ -18,7 +18,7 @@ char ssid[] = "Wokwi-GUEST";
 char pass[] = "";
 
 // ---------- MQTT ----------
-const char* mqtt_server = "10.13.71.198";  // Mosquitto / Cloud broker
+const char* mqtt_server = "10.13.66.254";  // Mosquitto / Cloud broker
 const int   mqtt_port   = 1883;
 
 // Topics
@@ -48,7 +48,7 @@ void connectWiFi() {
 void connectMQTT() {
   while (!mqtt.connected()) {
     Serial.print("Connecting to MQTT...");
-    if (mqtt.connect("ESP32_Publisher")) {
+    if (mqtt.connect("Amna_Publisher")) {
       Serial.println("connected");
     } else {
       Serial.print("failed, rc=");
